@@ -1,0 +1,7 @@
+# Ignore HTML presentation file as requested
+presentation.html
+
+# Python cache & checkpoints
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

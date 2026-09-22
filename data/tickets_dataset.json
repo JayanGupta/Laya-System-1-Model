@@ -1,0 +1,122 @@
+[
+  {
+    "id": "TCK-1001",
+    "customer": "Sarah Jenkins (Acme Corp)",
+    "language": "English",
+    "subject": "Double charged on monthly subscription invoice #INV-88912",
+    "body": "Hello, our finance department noticed we were billed twice for the enterprise tier on March 1st ($4,500 x 2). Can you please reverse the second charge immediately and provide an updated receipt?",
+    "expected_department": "billing",
+    "expected_urgency": "high",
+    "expected_human_escalation": true
+  },
+  {
+    "id": "TCK-1002",
+    "customer": "DevOps Engineer (FinTech Global)",
+    "language": "English",
+    "subject": "CRITICAL: Database connection pool exhausted causing HTTP 500 errors on API",
+    "body": "Our production cluster in us-east-1 is throwing connection timeouts on the primary PostgreSQL database. Over 30% of user requests are failing right now. Urgent assistance required!",
+    "expected_department": "technical_support",
+    "expected_urgency": "critical",
+    "expected_human_escalation": true
+  },
+  {
+    "id": "TCK-1003",
+    "customer": "Carlos Rodriguez",
+    "language": "Spanish",
+    "subject": "¿Cómo puedo exportar mis datos de usuario en formato CSV?",
+    "body": "Hola, estoy revisando la nueva interfaz y no encuentro la opción de descargar el reporte de clientes en formato CSV. ¿Me podrían indicar los pasos para generarlo?",
+    "expected_department": "general_inquiry",
+    "expected_urgency": "low",
+    "expected_human_escalation": false
+  },
+  {
+    "id": "TCK-1004",
+    "customer": "Alex Mercer",
+    "language": "English",
+    "subject": "Security notification: Unrecognized login attempt from unknown IP",
+    "body": "I received an alert that my account was accessed from an IP located in another country at 3 AM. I did not initiate this login. Please lock sessions and verify my 2FA status.",
+    "expected_department": "security",
+    "expected_urgency": "critical",
+    "expected_human_escalation": true
+  },
+  {
+    "id": "TCK-1005",
+    "customer": "Elena Rostova",
+    "language": "Russian",
+    "subject": "Запрос на изменение платежных реквизитов компании",
+    "body": "Добрый день. Нам необходимо обновить банковские реквизиты нашей организации для выставления счетов за следующий квартал. Прикрепите, пожалуйста, форму запроса.",
+    "expected_department": "billing",
+    "expected_urgency": "medium",
+    "expected_human_escalation": false
+  },
+  {
+    "id": "TCK-1006",
+    "customer": "Michael Chen",
+    "language": "English",
+    "subject": "Feature request: Dark mode support for desktop dashboard",
+    "body": "Hey team, loving the platform so far! Just wondering if dark mode is on the product roadmap for Q3? Working late hours in bright white hurts the eyes a bit.",
+    "expected_department": "product_feedback",
+    "expected_urgency": "low",
+    "expected_human_escalation": false
+  },
+  {
+    "id": "TCK-1007",
+    "customer": "Karen Vance",
+    "language": "English",
+    "subject": "Unacceptable service downtime - cancelling contract immediately if unresolved",
+    "body": "This is the third time your service has dropped this week during peak trading hours. We are losing hundreds of dollars per hour. If your team doesn't resolve this permanently within 2 hours, we are pulling our enterprise agreement.",
+    "expected_department": "technical_support",
+    "expected_urgency": "critical",
+    "expected_human_escalation": true
+  },
+  {
+    "id": "TCK-1008",
+    "customer": "Kenji Sato",
+    "language": "Japanese",
+    "subject": "パスワードリセットの確認メールが届きません",
+    "body": "お世話になっております。ログインパスワードの再設定を行いましたが、30分経っても認証コードのメールが届きません。迷惑メールフォルダも確認済みです。",
+    "expected_department": "technical_support",
+    "expected_urgency": "medium",
+    "expected_human_escalation": false
+  },
+  {
+    "id": "TCK-1009",
+    "customer": "Lucas Silva",
+    "language": "Portuguese",
+    "subject": "Dúvida sobre limites do plano Pro",
+    "body": "Olá! Gostaria de saber quantas chamadas de API por minuto estão incluídas no plano Pro anual antes que ocorra throttling.",
+    "expected_department": "general_inquiry",
+    "expected_urgency": "low",
+    "expected_human_escalation": false
+  },
+  {
+    "id": "TCK-1010",
+    "customer": "Sophie Laurent",
+    "language": "French",
+    "subject": "Suspicion de fuite de clé API dans un dépôt public",
+    "body": "Bonjour, un de nos développeurs a accidentellement committé une clé d'API de production sur GitHub il y a 20 minutes. Nous l'avons révoquée, mais nous souhaitons auditer les logs d'accès récents.",
+    "expected_department": "security",
+    "expected_urgency": "critical",
+    "expected_human_escalation": true
+  },
+  {
+    "id": "TCK-1011",
+    "customer": "David Miller",
+    "language": "English",
+    "subject": "Missing refund confirmation for cancelled order #ORD-4410",
+    "body": "Hi there, your representative told me last Thursday that my refund would process within 48 business hours, but my bank statement still shows nothing. Can you check the transaction status?",
+    "expected_department": "billing",
+    "expected_urgency": "medium",
+    "expected_human_escalation": false
+  },
+  {
+    "id": "TCK-1012",
+    "customer": "Priya Sharma",
+    "language": "English",
+    "subject": "Webhook payload structure documentation question",
+    "body": "Hello, I am integrating your webhooks into our Zapier workflow. Does the 'payment_succeeded' event payload contain the customer's tax VAT number or only the subtotal?",
+    "expected_department": "general_inquiry",
+    "expected_urgency": "low",
+    "expected_human_escalation": false
+  }
+]
