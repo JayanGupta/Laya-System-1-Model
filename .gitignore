@@ -5,3 +5,11 @@ presentation.html
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# Internal build helper scripts
+build_notebook.py
+populate_notebook.py
+validate_nb.py
+
+# Generated chart files
+department_probs.png

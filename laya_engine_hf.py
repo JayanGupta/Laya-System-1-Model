@@ -1,112 +1,95 @@
 """
 laya_engine_hf.py
 -----------------
-Hugging Face Transformers implementation for Laya.
-Demonstrates how to run inference using standard Hugging Face tools
-(AutoTokenizer, AutoModel, and pipeline).
+Shows how to load and run Laya using only the standard Hugging Face
+`transformers` library — no laya package required for the raw HF usage.
+
+Install: pip install transformers torch
+
+Usage:
+    python laya_engine_hf.py
 """
 
-import time
-from typing import Dict, Any, List
+import torch
+from transformers import AutoTokenizer, AutoModel
 
-class HuggingFaceLayaClassifier:
+
+MODEL_ID = "convaiinnovations/laya"
+
+
+def load_model(model_id: str = MODEL_ID):
     """
-    Classification engine using Hugging Face Transformers.
+    Download (or load from cache) the tokenizer and model weights from
+    Hugging Face Hub. First run downloads ~300 MB; subsequent runs are instant.
     """
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model     = AutoModel.from_pretrained(model_id, device_map="auto")
+    return tokenizer, model
 
-    def __init__(self, model_id: str = "convaiinnovations/laya"):
-        self.model_id = model_id
-        self.tokenizer = None
-        self.model = None
-        self.pipeline = None
-        self.is_loaded = False
 
-        # Attempt to load using standard Hugging Face transformers
-        try:
-            from transformers import AutoTokenizer, AutoModel, pipeline
-            self.tokenizer = AutoTokenizer.from_pretrained(model_id)
-            self.model = AutoModel.from_pretrained(model_id)
-            self.pipeline = pipeline("text-classification", model=model_id)
-            self.is_loaded = True
-            print(f"[HF Engine] Loaded {model_id} successfully via Transformers.")
-        except Exception as e:
-            # Fallback when torch or large weights are not yet installed locally
-            self.is_loaded = False
+def tokenize(tokenizer, text: str) -> dict:
+    """
+    Convert raw text into token IDs that the model understands.
+    Returns a dict of PyTorch tensors ready to pass into the model.
+    """
+    return tokenizer(text, return_tensors="pt")
 
-    def predict(self, text: str, candidate_labels: List[str] = None) -> Dict[str, Any]:
-        """
-        Classify text into candidate labels using Hugging Face.
-        """
-        if candidate_labels is None:
-            candidate_labels = ["billing", "technical_support", "security", "general_inquiry"]
 
-        start = time.perf_counter()
+def forward_pass(model, inputs: dict) -> torch.Tensor:
+    """
+    Run one single forward pass through the transformer.
+    Returns last_hidden_state: shape [batch, sequence_length, embedding_dim].
+    No token generation loop — this is what makes Laya fast.
+    """
+    with torch.no_grad():
+        outputs = model(**inputs)
+    return outputs.last_hidden_state
 
-        # 1. Live Hugging Face Pipeline Inference (when torch is installed)
-        if self.is_loaded and self.pipeline:
-            try:
-                hf_output = self.pipeline(text)
-                elapsed = (time.perf_counter() - start) * 1000
-                return {
-                    "text": text,
-                    "prediction": hf_output[0]["label"],
-                    "confidence": round(hf_output[0]["score"], 4),
-                    "latency_ms": round(elapsed, 2),
-                    "framework": "transformers"
-                }
-            except Exception:
-                pass
 
-        # 2. Semantic matching output (replicates Laya's sub-35ms calibrated decisions)
-        lower_text = text.lower()
-        if any(w in lower_text for w in ["bill", "charge", "invoice", "refund", "payment"]):
-            label, conf = "billing", 0.962
-        elif any(w in lower_text for w in ["database", "500", "timeout", "server", "crash"]):
-            label, conf = "technical_support", 0.974
-        elif any(w in lower_text for w in ["unrecognized", "login", "password", "security", "ip"]):
-            label, conf = "security", 0.991
-        else:
-            label, conf = "general_inquiry", 0.885
-
-        # Calculate softmax-style distribution over candidate labels
-        other_prob = round((1.0 - conf) / (len(candidate_labels) - 1 or 1), 4)
-        probabilities = {l: (conf if l == label else other_prob) for l in candidate_labels}
-
-        elapsed = max((time.perf_counter() - start) * 1000, 33.0)
-
-        return {
-            "text": text,
-            "prediction": label,
-            "confidence": conf,
-            "probabilities": probabilities,
-            "latency_ms": round(elapsed, 2),
-            "framework": "transformers (simulated)" if not self.is_loaded else "transformers"
-        }
+def cls_embedding(hidden_state: torch.Tensor) -> torch.Tensor:
+    """
+    Extract the [CLS] token embedding (position 0).
+    This vector is Laya's learned representation of the whole input.
+    """
+    return hidden_state[0][0]
 
 
 def main():
-    print("==================================================")
-    print("LAYA HUGGING FACE ENGINE DEMO")
-    print("==================================================")
+    print("=" * 52)
+    print("LAYA  —  Hugging Face Transformers Demo")
+    print("=" * 52)
 
-    engine = HuggingFaceLayaClassifier()
+    # 1. Load model and tokenizer
+    print(f"\nLoading model: {MODEL_ID}")
+    tokenizer, model = load_model()
+    print("Model ready.\n")
 
-    sample_text = "CRITICAL: Database connection pool exhausted causing HTTP 500 errors"
-    print(f"\nInput Text: \"{sample_text}\"")
+    # 2. Define example text
+    text = "CRITICAL: Database connection pool exhausted causing HTTP 500 errors across all services"
+    print(f"Input text:\n  {text}\n")
 
-    categories = ["billing", "technical_support", "security", "general_inquiry"]
-    result = engine.predict(sample_text, candidate_labels=categories)
+    # 3. Tokenize
+    inputs = tokenize(tokenizer, text)
+    tokens = tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
+    print(f"Tokens ({len(tokens)}):")
+    print(f"  {tokens}\n")
 
-    print(f"\nPredicted Label: {result['prediction']}")
-    print(f"Confidence:      {result['confidence'] * 100:.1f}%")
-    print(f"Latency:         {result['latency_ms']} ms")
-    print(f"Framework:       {result['framework']}")
+    # 4. Forward pass
+    hidden = forward_pass(model, inputs)
+    print(f"Hidden state shape: {hidden.shape}")
+    print(f"  (batch=1, tokens={hidden.shape[1]}, embedding_dim={hidden.shape[2]})\n")
 
-    print("\nFull Probabilities Distribution:")
-    for cat, prob in result.get("probabilities", {}).items():
-        print(f"  - {cat:<18}: {prob * 100:>5.1f}%")
+    # 5. CLS embedding (model's summary of the text)
+    cls = cls_embedding(hidden)
+    print(f"[CLS] embedding (first 8 of {cls.shape[0]} dimensions):")
+    print(f"  {cls[:8].tolist()}\n")
 
-    print("\n==================================================")
+    print("=" * 52)
+    print("For structured decisions (department, urgency, etc.),")
+    print("use the laya package:  pip install laya")
+    print("Then run:              python laya_demo.py")
+    print("=" * 52)
+
 
 if __name__ == "__main__":
     main()

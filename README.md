@@ -1,114 +1,258 @@
-# Laya: System 1 Decision Model
+# Laya — System 1 Decision Model
 
-An open-source (Apache 2.0) project showing how **Laya** (`convaiinnovations/laya`) performs instant text classification, routing, and urgency scoring without requiring paid APIs.
+<p align="center">
+  <img src="https://img.shields.io/badge/Model-convaiinnovations%2Flaya-blue?logo=huggingface&logoColor=white" alt="HuggingFace"/>
+  <img src="https://img.shields.io/badge/License-Apache%202.0-green?logo=apache&logoColor=white" alt="Apache 2.0"/>
+  <img src="https://img.shields.io/badge/Python-3.9%2B-blue?logo=python&logoColor=white" alt="Python 3.9+"/>
+  <img src="https://img.shields.io/badge/Framework-PyTorch-orange?logo=pytorch&logoColor=white" alt="PyTorch"/>
+  <img src="https://img.shields.io/badge/Transformers-4.40%2B-yellow?logo=huggingface&logoColor=white" alt="Transformers"/>
+  <img src="https://img.shields.io/badge/Latency-%2B%7E33ms-brightgreen" alt="33ms latency"/>
+</p>
+
+<p align="center">
+  <strong>A clean, open-source showcase of <a href="https://huggingface.co/convaiinnovations/laya">convaiinnovations/laya</a> — the non-autoregressive System 1 decision model that classifies text, routes tickets, and scores urgency in a single forward pass at ~33 ms.</strong>
+</p>
 
 ---
 
-## What is Laya and How Does It Work?
+## What Is Laya?
 
-Traditional AI models like ChatGPT, Claude, and Llama are **generative (System 2)**. When you ask them to classify a ticket, they generate text word-by-word. This takes 1,000 to 3,000 milliseconds, costs money per token, and sometimes hallucinates or breaks JSON formatting.
+Most AI models (ChatGPT, Claude, Llama) are **System 2** — they generate text token-by-token in a loop. That takes 1–3 seconds, costs tokens, and can hallucinate.
 
-**Laya is a System 1 Decision Model**:
-1. **Single Forward Pass**: It does not generate text word-by-word. It reads the input text and evaluates your questions in a single mathematical pass (~33 milliseconds).
-2. **Zero Hallucinations**: Because it never generates text, it cannot make up fake information or break schemas.
-3. **Calibrated Probabilities**: It outputs honest mathematical confidence percentages (e.g., 97% probability) trained using proper scoring rules (RLCD).
-4. **100% Free and Local**: Open-source under Apache 2.0. No API keys or credit cards needed.
+**Laya is System 1** — it works like human intuition:
+
+| | Generative LLMs | Laya (System 1) |
+|---|---|---|
+| **Output** | Text stream | Structured JSON |
+| **Inference** | Token-by-token generation loop | Single forward pass |
+| **Latency** | 1,000 – 3,000 ms | ~33 ms |
+| **Hallucinations** | Yes (generates text) | No (never generates) |
+| **Probabilities** | Uncalibrated | Calibrated via RLCD |
+| **Cost** | Per token API pricing | Free, self-hosted |
+| **License** | Varies | Apache 2.0 |
 
 ---
 
 ## Project Structure
 
 ```
-d:\Laya\
-├── presentation.html         # Interactive slide deck (open in any web browser)
+Laya/
 ├── experiment/
-│   └── laya_experiment.ipynb # Simple, standalone notebook (Colab ready)
+│   └── laya_experiment.ipynb   # Step-by-step notebook (Colab ready)
 ├── data/
-│   └── tickets_dataset.json  # Sample tickets dataset
-├── laya_engine_hf.py         # Hugging Face Transformers implementation
-├── laya_engine.py            # Standard Laya engine wrapper
-├── laya_demo.py              # Minimal CLI script (28 lines)
-├── requirements.txt          # Python dependencies
-└── README.md                 # Project documentation
+│   ├── tickets_dataset.json    # Sample support tickets (JSON)
+│   └── tickets_dataset.csv     # Same data in CSV format
+├── laya_engine.py              # Wrapper around the laya Python package
+├── laya_engine_hf.py           # Pure Hugging Face transformers demo
+├── laya_demo.py                # CLI script — classify any text in one command
+├── requirements.txt            # All Python dependencies
+└── README.md
 ```
 
 ---
 
-## How to Run Everything
+## Quick Setup
 
-### 1. Run the Hugging Face Transformers Engine
-Execute the dedicated Hugging Face engine script:
-```powershell
-python laya_engine_hf.py
+```bash
+# 1. Clone the repository
+git clone https://github.com/JayanGupta/Laya-System-1-Model.git
+cd Laya-System-1-Model
+
+# 2. Install all dependencies
+pip install -r requirements.txt
 ```
-This demonstrates how text is classified into candidate categories with full probability distributions using the Hugging Face ecosystem.
 
-### 2. Run the Minimal CLI Demo
-```powershell
-# Default test
+> **First run:** The model weights (~300 MB) are downloaded automatically from Hugging Face Hub and cached locally. All subsequent runs are instant.
+
+---
+
+## Scripts
+
+### `laya_demo.py` — Classify any text from the terminal
+
+The fastest way to see Laya in action. Pass any text as an argument.
+
+```bash
+# Default example (database outage)
 python laya_demo.py
 
-# Test your own custom text
-python laya_demo.py Double charged on my monthly subscription
+# Billing issue
+python laya_demo.py "Double charged on invoice #INV-88912"
+
+# Security breach
+python laya_demo.py "Unrecognized login from foreign IP 203.0.113.42"
+
+# Critical outage
+python laya_demo.py "CRITICAL: Full production downtime, all services offline"
+
+# General question
+python laya_demo.py "How do I export my data to CSV?"
 ```
 
-### 3. Run the Jupyter Notebook / Google Colab
-Open `experiment/laya_experiment.ipynb` in VS Code, Jupyter, or upload directly to **Google Colab**.
-It contains 7 simple steps showing:
-- Hugging Face `transformers` tokenization and forward pass.
-- Structured decision extraction via Laya.
-- Probability distribution plotting with matplotlib.
-- Batch evaluation on sample customer tickets.
+**Example output:**
 
-### 4. View the Slide Presentation
-Open `presentation.html` in any web browser:
-```powershell
-start presentation.html
 ```
-Use the arrow keys (`←` and `→`) to navigate through 7 slides explaining the architecture, benchmarks, and comparison with TypeSafe Jev.
+--- LAYA DECISION ---
+Input:       CRITICAL: Database connection pool exhausted causing HTTP 500 errors
+Latency:     33.0 ms
+Department:  technical_support  (97.4%)
+Urgency:     CRITICAL
+Escalation:  True
+---------------------
+
+Probability distribution:
+  billing               1.0%  
+  technical_support    97.4%  ########################################
+  security              0.8%  
+  general_inquiry       0.8%  
+```
 
 ---
 
-## Code Examples
+### `laya_engine.py` — The model wrapper (importable module)
 
-### Direct Decision via Laya (2 Lines)
+Use this in your own Python code.
+
+```python
+from laya_engine import LayaClassifier, get_default_questions
+
+model     = LayaClassifier()            # loads convaiinnovations/laya
+questions = get_default_questions()     # department + urgency + escalation
+
+state = {
+    "subject": "Double charged on invoice #INV-88912",
+    "body":    "Our finance team found a duplicate charge for April. Please refund."
+}
+
+result  = model.predict(state, questions)
+answers = result["answers"]
+
+print(answers["department"]["choice"])      # billing
+print(answers["department"]["confidence"])  # 0.962
+print(answers["urgency"]["score"])          # low
+print(answers["needs_human_escalation"]["value"])  # False
+print(result["latency_ms"])                 # 33.0
+```
+
+---
+
+### `laya_engine_hf.py` — Raw Hugging Face transformers usage
+
+Shows the lower-level Hugging Face API: tokenization, forward pass, and embedding extraction — no `laya` package needed.
+
+```bash
+python laya_engine_hf.py
+```
+
+Or import it in your own code:
+
+```python
+from laya_engine_hf import load_model, tokenize, forward_pass, cls_embedding
+
+tokenizer, model = load_model()
+
+text    = "Server is returning HTTP 500 errors"
+inputs  = tokenize(tokenizer, text)
+hidden  = forward_pass(model, inputs)
+cls_vec = cls_embedding(hidden)          # [768-dim] summary vector of the text
+
+print(cls_vec[:8].tolist())
+```
+
+**Example output:**
+
+```
+====================================================
+LAYA  —  Hugging Face Transformers Demo
+====================================================
+
+Loading model: convaiinnovations/laya
+Model ready.
+
+Input text:
+  CRITICAL: Database connection pool exhausted causing HTTP 500 errors across all services
+
+Tokens (17):
+  ['[CLS]', 'critical', ':', 'database', 'connection', 'pool', 'exhausted', ...]
+
+Hidden state shape: torch.Size([1, 17, 768])
+  (batch=1, tokens=17, embedding_dim=768)
+
+[CLS] embedding (first 8 of 768 dimensions):
+  [0.1823, -0.3241, 0.5102, -0.1876, 0.4320, -0.2198, 0.3871, -0.0912]
+```
+
+---
+
+### `experiment/laya_experiment.ipynb` — Step-by-step Jupyter Notebook
+
+A fully annotated notebook covering all 9 steps end-to-end.
+Open it in VS Code, Jupyter Lab, or upload directly to Google Colab.
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/JayanGupta/Laya-System-1-Model/blob/main/experiment/laya_experiment.ipynb)
+
+Steps covered:
+
+| # | Step | What it shows |
+|---|---|---|
+| 1 | Install | `pip install transformers torch laya` |
+| 2 | Load model | `AutoTokenizer` + `AutoModel.from_pretrained()` |
+| 3 | Tokenize | Text → token IDs → tensor |
+| 4 | Forward pass | Single pass through 12 transformer layers |
+| 5 | Laya structured output | `laya.load()` → typed JSON decisions |
+| 6 | Define state & questions | Input schema + typed question schema |
+| 7 | Run inference | `agent.predict()` → department, urgency, escalation |
+| 8 | Visualize | Calibrated probability bar chart |
+| 9 | Batch testing | 5 tickets → pandas DataFrame |
+
+---
+
+## Two Ways to Use Laya
+
+### Option A — High-level (laya package)
+
 ```python
 import laya
 
-# 1. Load the model from Hugging Face
 agent = laya.load("convaiinnovations/laya")
-
-# 2. Put text in and get decisions out
-state = {"subject": "Double charged on invoice #INV-88912"}
-questions = {
-    "department": {
-        "type": "choice",
-        "instructions": "Which department handles this?",
-        "criteria": {
-            "billing": "Invoices, charges, refunds",
-            "technical_support": "System bugs, crashes"
+result = agent.predict(
+    {"subject": "Server down", "body": "All services unreachable"},
+    {
+        "department": {
+            "type": "choice",
+            "instructions": "Which team handles this?",
+            "criteria": {
+                "technical_support": "Server, database, API issues",
+                "billing":           "Invoices and payments",
+            }
         }
     }
-}
-
-result = agent.predict(state, questions)
-print(result["answers"]["department"]["choice"])      # "billing"
-print(result["answers"]["department"]["confidence"])  # 0.96
+)
+print(result["answers"]["department"]["choice"])  # technical_support
 ```
 
-### Direct Hugging Face Transformers
+### Option B — Low-level (transformers only)
+
 ```python
 from transformers import AutoTokenizer, AutoModel
+import torch
 
-model_id = "convaiinnovations/laya"
+model_id  = "convaiinnovations/laya"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModel.from_pretrained(model_id)
+model     = AutoModel.from_pretrained(model_id, device_map="auto")
 
-inputs = tokenizer("Double charged on invoice #INV-88912", return_tensors="pt")
-outputs = model(**inputs)
+inputs  = tokenizer("Server is down", return_tensors="pt")
+with torch.no_grad():
+    outputs = model(**inputs)
+
+# last_hidden_state shape: [1, num_tokens, 768]
+print(outputs.last_hidden_state.shape)
 ```
 
 ---
 
-## License
-Apache-2.0. Model hosted on Hugging Face: [convaiinnovations/laya](https://huggingface.co/convaiinnovations/laya).
+## References
+
+- **Model on Hugging Face:** [convaiinnovations/laya](https://huggingface.co/convaiinnovations/laya)
+- **Paper / Blog:** [Convai Innovations](https://convai.com)
+- **License:** [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)

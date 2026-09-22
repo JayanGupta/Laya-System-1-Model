@@ -1,6 +1,5 @@
+transformers>=4.40.0
+torch>=2.1.0
+laya>=0.1.0
 pandas>=2.0.0
 matplotlib>=3.7.0
-
-# Optional packages for downloading and running live weights locally on CPU/GPU:
-# pip install torch transformers
-# pip install laya
