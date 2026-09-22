@@ -10,6 +10,8 @@ __pycache__/
 build_notebook.py
 populate_notebook.py
 validate_nb.py
+generate_explanation.py
+app.py
 
 # Generated chart files
 department_probs.png
