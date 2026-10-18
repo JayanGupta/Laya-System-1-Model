@@ -102,7 +102,7 @@ Escalation:  True
 
 Probability distribution:
   billing               1.0%  
-  technical_support    97.4%  ########################################
+  technical_support    97.4%
   security              0.8%  
   general_inquiry       0.8%  
 ```
